@@ -1,1 +1,3 @@
-from .main import main
+"""Subscriber server application."""
+
+from subscriber_server.main import main

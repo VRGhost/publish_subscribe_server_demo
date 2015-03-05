@@ -53,3 +53,7 @@ docs/_build/
 # PyBuilder
 target/
 _env
+tmp/*
+.*
+*.sublime-workspace
+_trial_temp

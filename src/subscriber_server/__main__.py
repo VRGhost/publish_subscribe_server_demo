@@ -1,3 +1,5 @@
+"""Entry point for the subscriber_server"""
+
 import subscriber_server
 
 if __name__ == "__main__":
