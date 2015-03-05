@@ -1,0 +1,39 @@
+{
+	"build_systems":
+	[
+		{
+			"cmd":
+			[
+				"python",
+				"test"
+			],
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Python test",
+			"selector": "source.python",
+			"working_dir": "${project_path}/.."
+		}
+	],
+	"folders":
+	[
+		{
+			"name": "Sources",
+			"path": "../src/"
+		},
+		{
+			"name": "Tests",
+			"path": "../tests"
+		},
+		{
+			"name": "bin",
+			"path": "../bin/"
+		}
+	],
+	"settings":
+	{
+		"default_line_ending": "unix",
+		"detect_indentation": true,
+		"tab_size": 4,
+		"translate_tabs_to_spaces": true,
+		"use_tab_stops": true
+	}
+}
