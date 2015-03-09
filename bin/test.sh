@@ -8,5 +8,6 @@ else
     ARGS=$@
 fi
 
+
 cd "${PROJECT_DIR}"
 exec python -m trial "${ARGS[@]}"

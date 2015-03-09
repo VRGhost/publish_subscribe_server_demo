@@ -1,1 +1,3 @@
 Twisted
+pylint
+mock

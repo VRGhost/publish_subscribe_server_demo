@@ -3,7 +3,7 @@
 source "$(dirname "${BASH_SOURCE[0]}")/project.env"
 
 if [ "x$@" == "x" ]; then
-    ARGS=( "tests" "src/subscriber_server" )
+    ARGS=( "tests" "subscriber_server" )
 else
     ARGS=$@
 fi

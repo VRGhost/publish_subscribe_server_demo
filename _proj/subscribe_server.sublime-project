@@ -16,8 +16,8 @@
 	"folders":
 	[
 		{
-			"name": "Sources",
-			"path": "../src/"
+			"name": "subscriber_server",
+			"path": "../subscriber_server/"
 		},
 		{
 			"name": "Tests",
