@@ -3,5 +3,5 @@
 from subscriber_server import (
     db, 
     server,
+    main,
 )
-from subscriber_server.main import main

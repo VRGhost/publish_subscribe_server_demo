@@ -3,4 +3,5 @@
 import subscriber_server
 
 if __name__ == "__main__":
-    subscriber_server.main()
+    args = subscriber_server.main.get_arg_parser().parse_args()
+    subscriber_server.main.main(args)

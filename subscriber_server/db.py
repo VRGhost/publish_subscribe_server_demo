@@ -143,9 +143,12 @@ class DatabaseImpl(object):
     @contextlib.contextmanager
     def _topic(self, name):
         """Topic context."""
+        # Shelf DB does not accept unicode keys
+        dbKey = name.encode("utf8")
         with self._excl:
+
             try:
-                data = self._source[name]
+                data = self._source[dbKey]
             except KeyError:
                 data = {}
 
@@ -153,4 +156,4 @@ class DatabaseImpl(object):
             try:
                 yield topic
             finally:
-                self._source[name] = topic.getData()
+                self._source[dbKey] = topic.getData()

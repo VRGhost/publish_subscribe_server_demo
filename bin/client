@@ -1,0 +1,63 @@
+#!/bin/env python2.7
+# -*- coding: utf8 -*-
+"""Simple command-line client to interact with the server."""
+
+import argparse
+import httplib
+import urllib
+import json
+
+def get_arg_parser():
+    """Return ArgumentParser object for this program."""
+    parser = argparse.ArgumentParser(description="CLI for the publish/subscribe demo server")
+    parser.add_argument("action", choices=("subscribe", "publish", "unsubscribe", "get"), help="Invoked action.")
+    parser.add_argument("topic", help="Topic.")
+    parser.add_argument("user", help="User name. (value ignored for 'post')")
+    parser.add_argument("--payload", help="Message payload ('post' action only)", default=None)
+    parser.add_argument("--host", help="IP of the server", default="127.0.0.1")
+    parser.add_argument("--port", help="Port at the server", type=int, default=8080)
+    return parser
+
+def main(args):
+    action = args.action
+
+    # Decide on HTTP method
+    if action == "get":
+        method = "GET"
+    elif action in ("subscribe", "publish"):
+        method = "POST"
+    elif action == "unsubscribe":
+        method = "DELETE"
+    else:
+        raise NotImplementedError(action)
+    # Decide on URL
+    if action == "publish":
+        url = u"/{}".format(args.topic)
+    else:
+        url = u"/{}/{}".format(args.topic, args.user)
+
+    # Decide on request body
+    if action == "publish":
+        payload = args.payload or ""
+        body = urllib.urlencode({"payload": payload.encode("utf8")})
+    else:
+        body = None
+
+    url = urllib.quote(url.encode("utf8"))
+
+    headers = {"Content-type": "application/x-www-form-urlencoded"}
+
+    conn = httplib.HTTPConnection(args.host, args.port)
+    conn.request(method, url, body, headers)
+    resp = conn.getresponse()
+    print json.dumps(
+        {
+            "status_code": resp.status,
+            "content": resp.read().decode("utf8")
+        },
+        indent=2
+    )
+
+if __name__ == "__main__":
+    args = get_arg_parser().parse_args()
+    main(args)

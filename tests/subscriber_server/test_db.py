@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 """Test data storage object."""
 import tempfile
 import os
@@ -20,9 +22,9 @@ class TestDataStorage(TestCase):
 
     def test_database_op_cycle(self):
         """Test DB register listener/publish message cycle."""
-        user = "marvin"
-        topic = "dead_beef"
-        message = "hello, world"
+        user = u"उपयोगकर्ता"
+        topic = u"こんにちは"
+        message = u"ինչպես եք?"
         db = self._db
 
         db.subscribe(user, topic)
@@ -66,9 +68,9 @@ class TestDataStorage(TestCase):
 
     def test_persistence(self):
         """Test that db can preserve its data over open/close cycle."""
-        user = "marvin"
-        topic = "dead_beef"
-        message = "hello, world"
+        user = u"उपयोगकर्ता"
+        topic = u"こんにちは"
+        message = u"ինչպես եք?"
         db = self._db
 
         db.subscribe(user, topic)
