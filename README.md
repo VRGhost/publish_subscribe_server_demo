@@ -106,3 +106,8 @@ $ ./bin/client get kittens_and_puppies Bob
 1. Better `pylint` score
 1. Improve performance (db access is pretty much exclusive, and its performance is rather unsatisfactory)
 1. More meaningful leverage of `zope.interface` via component registration
+
+
+### P.S.
+
+Messages are actually persistent and won't disappear with server restart.
