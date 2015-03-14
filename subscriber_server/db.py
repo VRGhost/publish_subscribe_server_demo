@@ -75,6 +75,7 @@ class _DbTopic(object):
         return self.data
 
     def publishMessage(self, message):
+        """Publish the message into the topic."""
         for msgQueue in self.data.itervalues():
             msgQueue.append(message)
 

@@ -9,12 +9,11 @@ from twisted.python import components
 from tests.subscriber_server.unittest import TestCase
 from twisted.web.test.test_web import DummyRequest
 from twisted.internet.defer import (
-    Deferred,
     inlineCallbacks,
     maybeDeferred,
 )
 
-from subscriber_server.server import SubscriberResource 
+from subscriber_server.server import SubscriberResource
 from subscriber_server import db
 
 
@@ -24,14 +23,14 @@ class IDbMock(mock.Mock):
 
 class TestWebResource(TestCase):
     """Test web server interface."""
-    
+
     @inlineCallbacks
     def test_get_not_subscribed(self):
         """Test resource 'GET' with no errors."""
         uname = "no_user"
         topic = u"你好世界"
         self.db.retreiveMessage.side_effect = db.NotSubscribed(uname)
-        (httpCode, response) = yield self.callNewMessage(topic, uname)
+        (httpCode, _) = yield self.callNewMessage(topic, uname)
         self.assertEqual(httpCode, 404)
         self.db.retreiveMessage.assert_called_with(topic=topic, user=uname)
 
@@ -41,7 +40,7 @@ class TestWebResource(TestCase):
         uname = "no_user"
         topic = u"你好世界"
         self.db.retreiveMessage.side_effect = db.EmptyMessageQueue(uname)
-        (httpCode, response) = yield self.callNewMessage(topic, uname)
+        (httpCode, _) = yield self.callNewMessage(topic, uname)
         self.assertEqual(httpCode, 204)
         self.db.retreiveMessage.assert_called_with(topic=topic, user=uname)
 
@@ -59,38 +58,42 @@ class TestWebResource(TestCase):
 
     @inlineCallbacks
     def test_subscribe(self):
+        """Test 'subscribe' operation."""
         uname = "cat"
         topic = u"Schrödinger"
-        (httpCode, response) = yield self.callSubscribe(topic, uname)
+        (httpCode, _) = yield self.callSubscribe(topic, uname)
         self.assertEqual(httpCode, 200)
         self.db.subscribe.assert_called_with(topic=topic, user=uname)
 
     @inlineCallbacks
     def test_unsubscribe_ok(self):
+        """Test 'unsubscribe' that reports no error."""
         uname = "cat"
         topic = u"Schrödinger"
-        (httpCode, response) = yield self.callUnsubscribe(topic, uname)
+        (httpCode, _) = yield self.callUnsubscribe(topic, uname)
         self.assertEqual(httpCode, 200)
         self.db.unsubscribe.assert_called_with(topic=topic, user=uname)
 
     @inlineCallbacks
     def test_unsubscribe_not_subscribed(self):
+        """Test 'unsubscribe' that reports 'not subscribed' error."""
         uname = "cat"
         topic = u"Schrödinger"
         self.db.unsubscribe.side_effect = db.NotSubscribed(uname)
-        (httpCode, response) = yield self.callUnsubscribe(topic, uname)
+        (httpCode, _) = yield self.callUnsubscribe(topic, uname)
         self.assertEqual(httpCode, 404)
         self.db.unsubscribe.assert_called_with(topic=topic, user=uname)
 
     @inlineCallbacks
     def test_publish(self):
+        """Test 'publish' op."""
         topic = u"Schrödinger"
         text = u"""
             Las Cabeceras HTTP son los parámetros que se envían en una petición o respuesta HTTP al cliente o al servidor para proporcionar
             información esencial sobre la transacción en curso. Estas cabeceras proporcionan información mediante la sintaxis 'Cabecera: Valor'
             y son enviadas automáticamente por el navegador o el servidor Web.
         """
-        (httpCode, response) = yield self.callPublish(topic, text)
+        (httpCode, _) = yield self.callPublish(topic, text)
         self.assertEqual(httpCode, 200)
         self.db.publishMessage.assert_called_with(topic=topic, message=text)
 
@@ -105,22 +108,24 @@ class TestWebResource(TestCase):
             Returns: Deferred that will resolve to the response of the view
         """
         return self._mkTestResponse(self._mkRequest([topic, username], "GET"))
-        
+
     def callSubscribe(self, topic, username):
         """Helper method to call "subscribe" function of the HTTP server."""
         return self._mkTestResponse(self._mkRequest([topic, username], "POST"))
 
     def callPublish(self, topic, payload):
+        """Fake 'publish' request."""
         return self._mkTestResponse(self._mkRequest([topic], "POST", args={
             "payload": [payload.encode("utf8")],
         }))
 
     def callUnsubscribe(self, topic, username):
+        """Fake 'unsubscribe' request."""
         return self._mkTestResponse(self._mkRequest([topic, username], "DELETE"))
 
-    def _mkRequest(self, urlPath, method="GET", args=None):
+    def _mkRequest(self, path, method="GET", args=None):
         """Create dummy request mathing the spec."""
-        postpath = tuple(urlPath)
+        postpath = tuple(path)
         postpath = [el.encode("utf8") for el in postpath]
         url = urllib.quote("/" + ("/".join(postpath)))
         request = DummyRequest(postpath)
