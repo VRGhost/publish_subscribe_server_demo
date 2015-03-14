@@ -15,7 +15,7 @@ def get_arg_parser():
     parser.add_argument("user", help="User name. (value ignored for 'post')")
     parser.add_argument("--payload", help="Message payload ('post' action only)", default=None)
     parser.add_argument("--host", help="IP of the server", default="127.0.0.1")
-    parser.add_argument("--port", help="Port at the server", type=int, default=8080)
+    parser.add_argument("--port", help="Port at the server", type=int, default=5000)
     return parser
 
 def main(args):
