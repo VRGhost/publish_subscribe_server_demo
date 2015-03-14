@@ -4,6 +4,7 @@ The main entry function is named `main`.
 """
 
 import argparse
+import os
 
 from twisted.web import server
 from twisted.internet import reactor
@@ -18,7 +19,7 @@ def get_arg_parser():
     parser.add_argument(
         "--db",
         help="File to the database to use for message persistence.",
-        default="./publish_subscribe.db",
+        default=os.path.join(os.curdir, "publish_subscribe.db"),
     )
     return parser
 
