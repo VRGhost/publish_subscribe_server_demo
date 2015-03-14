@@ -77,6 +77,8 @@ Response codes:
   * 200: Retrieval succeeded.  
   * 204: There are no messages available for this topic on this user. 
   * 404: The subscription does not exist. 
+ 
+
 Response body: The body of the next message, if one exists. 
  
 ## Deliverables 
