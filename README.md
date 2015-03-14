@@ -1,88 +1,108 @@
-# Programming Exercise: Publish/Subscribe Server 
+# About
 
-## What We're Looking For 
-  * Your goal is to demonstrate how you would develop a production­quality software 
-project, within the limits of an exercise. This includes the code you write but also the 
-explanations you will include.  
-  * This is not a fail/pass test. Different people have different skills, and we want to see 
-what you're good at.  
+This is the repository for the [Publish/Subscriber Server exercise](./exercise.md).
 
-## Hints
+## How to prepare the environment
 
-  * Please ask us if you have any questions! 
-  * We realize you're doing other things with your life. There is no calendar deadline for 
-this exercise.  
-  * This is just an exercise; you should spend no more than a day worth of effort to 
-complete it. You can always, and ought to, add some text at the end explaining things 
-you've left out or how you might improve it. 
-  * Use whatever programming language, libraries and tools you're most comfortable with 
-and will help you solve the problem in a reasonable amount of time. 
+*  Checkout the code
+*  Create and activate new `virtualenv`
+*  `$ pip install -r ./requirements.txt`
 
-## What You'll be Building 
+## How to run tests
+*  Activate the above `virtualenv`
 
-You'll be implementing a server which exposes an HTTP­based API that can be used to 
-subscribe to specific topics. When a client publishes messages to a specific topic, all 
-subscribers receive that message.  
- 
-Once a message has been published: 
- 
-  * A message must persist until all subscribers at the time of publishing have received it. 
-  * A message should be removed once all subscribers have received it. 
- 
-Messages need not persist across server restarts. 
- 
-For example:  
-  1. Alice and Bob subscribe to the kittens_and_puppies topic.  
-  1. Charles sends a message to kittens_and_puppies saying 
-“http://cuteoverload.files.wordpress.com/2014/10/unnamed23.jpg?w=750&h=1000”. 
-  1. Alice checks to see if she has any new messages in that topic and receives a copy of  
-the message. 
-  1. If Alice checks again, that message will not be there anymore. 
-  1. The message is kept around until Bob checks for new messages or unsubscribes. 
-  1. Once both Alice and Bob have received it, the message is deleted. 
+```
+$ ./bin/test.sh
+tests.subscriber_server.test_db
+  TestDataStorage
+    test_database_op_cycle ...                                             [OK]
+    test_interface ...                                                     [OK]
+    test_many_messages_many_users ...                                      [OK]
+    test_persistence ...                                                   [OK]
+tests.subscriber_server.test_resource
+  TestWebResource
+    test_get_no_messages_in_queue ...                                      [OK]
+    test_get_not_subscribed ...                                            [OK]
+    test_get_ok ...                                                        [OK]
+    test_publish ...                                                       [OK]
+    test_subscribe ...                                                     [OK]
+    test_unsubscribe_not_subscribed ...                                    [OK]
+    test_unsubscribe_ok ...                                                [OK]
 
-## API
+-------------------------------------------------------------------------------
+Ran 11 tests in 0.286s
 
-The HTTP server should implement the following API: 
+PASSED (successes=11)
+```
 
-### Subscribe to a topic 
+## How to deploy
+*  Activate the `virtualenv`
 
-Request: `POST /<topic>/<username>`
+```
+  $ ./bin/serve.sh
+  Starting the Publish/Subscribe server at the port 5000 (using database './publish_subscribe.db')
+```
 
-Response codes: 
-  * 200: Subscription succeeded. 
+### How to interact with
 
-### Unsubscribe from a topic 
+To interact with the server, I've added a simple prtogram called `client` to the `bin` directory.
+It is effectively a CLI client for the server.
 
-Request: `DELETE /<topic>/<username>`
+The program executes a single API call per its invocation and prints out a response from server (json-encoded).
 
-Response codes: 
-  * 200: Unsubscribe succeeded.   
-  * 404: The subscription does not exist. 
+Example of usage:
+```
+$ ./bin/client subscribe kittens_and_puppies Alice
+{
+  "content": "Subscription succeeded.",
+  "status_code": 200
+}
+$ ./bin/client subscribe kittens_and_puppies Bob
+{
+  "content": "Subscription succeeded.",
+  "status_code": 200
+}
+$ ./bin/client publish kittens_and_puppies XXX_UNUSED --payload "http://cuteoverload.files.wordpress.com/2014/10/unnamed23.jpg?w=750&h=1000"
+{
+  "content": "Publish succeeded.",
+  "status_code": 200
+}
+$ ./bin/client get kittens_and_puppies Alice
+{
+  "content": "http://cuteoverload.files.wordpress.com/2014/10/unnamed23.jpg?w=750&h=1000",
+  "status_code": 200
+}
+$ ./bin/client get kittens_and_puppies Alice
+{
+  "content": "",
+  "status_code": 204
+}
+$ ./bin/client get kittens_and_puppies Eve
+{
+  "content": "The subscription does not exist.",
+  "status_code": 404
+}
+$ ./bin/client get kittens_and_puppies Bob
+{
+  "content": "http://cuteoverload.files.wordpress.com/2014/10/unnamed23.jpg?w=750&h=1000",
+  "status_code": 200
+}
+$ ./bin/client get kittens_and_puppies Bob
+{
+  "content": "",
+  "status_code": 204
+}
+```
 
-### Publish a message 
+### How did I ensure the product quality of the code
 
-Request: `POST /<topic> `
+1.  Unittests (`$ ./bin/test.sh`)
+1.  PyLint (`$ ./bin/pylint.sh`)
+1.  Manual integration tests with the `client` program
 
-Request body: The message being published. 
-
-Response codes: 
-  * 200: Publish succeeded.  
-
-### Retrieve the next message from a topic 
-
-Request: `GET /<topic>/<username>`
-
-Response codes: 
-  * 200: Retrieval succeeded.  
-  * 204: There are no messages available for this topic on this user. 
-  * 404: The subscription does not exist. 
-Response body: The body of the next message, if one exists. 
- 
-## Deliverables 
-
-Please include: 
- 
-  * Source code for your solution. 
-  * Instructions on deploying and running it. 
-  * An explanation of the steps you took to ensure this is production­quality code as well as what you left out and would do given more time.
+### What I left out
+1. Automated integration tests
+1. Stress tests
+1. Better `pylint` score
+1. Improve performance (db access is pretty much exclusive, and its performance is rather unsatisfactory)
+1. More meaningful leverage of `zope.interface` via component registration
